@@ -76,7 +76,7 @@ function owlInitialize() {
             items:1.2
         },
         600:{
-            items:1
+            items:1.2
         },
         1000:{
             items:1
@@ -112,7 +112,7 @@ $('.premium-slide').owlCarousel({
             items:1.2
         },
         600:{
-            items:2
+            items:1.2
         },
         1000:{
             items:3
@@ -136,7 +136,7 @@ $('.self-slide').owlCarousel({
             items:1.2
         },
         600:{
-            items:2
+            items:1.2
         },
         1000:{
             items:4
