@@ -1,0 +1,1 @@
+riot.tag2('tag-dashboard','','','',function(opts){var self=this;self.on('before-mount',function(){});self.on('mount',function(){});})

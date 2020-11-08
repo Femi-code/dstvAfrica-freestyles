@@ -1,0 +1,113 @@
+riot.tag2('tag-livechat','<button class="open-button live-chat" onclick="{openChatWindow}" if="{!showChatBox && isApplicableCountry}"> <span class="chat-prompt" if="{!showChatBox && isApplicableCountry && !isApplicableButWithComingSoonMessage}">Need Help? Click here to chat to a consultant!</span> <span class="chat-prompt" style="text-align: left;padding-left: 15px;width:281px" if="{!showChatBox && isApplicableCountry && isApplicableButWithComingSoonMessage}"> <span>{langTranslateApp.LiveChatSMSFirst}</span><br><span>{langTranslateApp.LiveChatSMSSecond}</span><br> <span class="live-links">Twitter <a href="{dstvApp.liveChatSupport.tweeterLink}" style="color: white;font-weight: 300;" target="_blank"><i class="icon-Twitter pl-1"></i> @{dstvApp.liveChatSupport.tweeterHandle}</a> {langTranslateApp.LiveChatSMSThird}</span> <span>Facebook <a href="{dstvApp.liveChatSupport.fbLink}" style="color: white;font-weight: 300;" target="_blank"><i class="icon-Facebook "></i> {dstvApp.liveChatSupport.fbPage}</a> <span if="{isInstagramApplicable}">{langTranslateApp.LiveChatSMSThird}</span></span><br> <span> <div if="{isInstagramApplicable}">{langTranslateApp.LiveChatInstaName} <a href="{dstvApp.liveChatSupport.instaLink}" style="color: white;font-weight: 300;" target="_blank"><i class="icon-Instagram"></i> {dstvApp.liveChatSupport.instaPage}</a></div> </span> </span> <?xml version="1.0" encoding="utf-8" ?> <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 208.5 192.3" style="enable-background:new 0 0 208.5 192.3;" xml:space="preserve"> <path fill="#179edd" d="M183.9,192.3H24.6c-13.5,0-24.6-11-24.6-24.6V24.6C0,11.1,11.1,0,24.6,0h159.3c13.5,0,24.6,11.1,24.6,24.6v143.1C208.5,181.3,197.4,192.3,183.9,192.3z" /> <path fill="#ffffff" d="M19.7,35.3v121c0,9.1,7.4,16.5,16.5,16.5H50c0.2,0,0.4,0.2,0.5,0.4l6.6,17.9c0.1,0.3,0.5,0.5,0.7,0.3L83,172.8c0.1-0.1,19.3-0.1,19.4-0.1h69.9c9.1,0,16.5-7.4,16.5-16.5V35.7c0-9.1-7.4-16.5-16.5-16.5H35.8C26.9,19.1,19.7,26.3,19.7,35.3z" /> <path fill="#179edd" d="M156.2,38.6H51.1c-6.8,0-12.3,5.5-12.3,12.3v89.7c0,6.8,5.5,12.3,12.3,12.3h65.6c0.1,0,10.1,0,10.2,0.1l12.9,19.4c0.2,0.1,0.5,0,0.5-0.2l4.9-19c0-0.2,0.2-0.3,0.3-0.3h10.2c6.8,0,12.3-5.5,12.3-12.3v-90C168.1,43.9,162.8,38.6,156.2,38.6z" /> <path fill="#333333" d="M85.3,108.5h35.9c0,0-1.8,16.2-18.9,16.2C87.2,124.7,85.3,108.5,85.3,108.5z" /> <circle fill="#333333" cx="74.2" cy="84.3" r="7.9" /> <circle fill="#333333" cx="133.2" cy="84.3" r="7.9" /> </svg></button><div if="{showChatBox}" class="chat-popup" id="dstvChat"> <button if="{app.loggedin}" title="End chat" type="button" class="btn cancel" data-dismiss="modal" onclick="{showConfirmationAlert}"><span class="icon-Close_M"></span></button><button type="button" class="btn cancel" data-dismiss="modal" onclick="{closeChatWindow}" title="Minimize"><span class="icon-Accordian_minus"></span></button> <div class="loginPage bodyClass" id="chatLogin" if="{!app.loggedin}"> <tag-sign-in loginFromChat={true}></tag-sign-in> </div> <div class="close-confirmation" if="{showConfirmation}"> <h5>Are you sure you want to end the chat?</h5> <br><button type="button" class="btn btn-white anim-btn" data-toggle="button" aria-pressed="true" autocomplete="off" onclick="{endChat}"><span class="anim-span"></span>Yes</button><button type="button" class="btn btn-white anim-btn" data-toggle="button" aria-pressed="true" autocomplete="off" onclick="{hideConfirmation}"><span class="anim-span"></span>No</button> </div> <div class="form-container" if="{app.loggedin && !showConfirmation}"> <div class="agent-area" style="margin-bottom: 10px;"> <h1> <div class="avatar"></div> </h1> <p class="active-agent">{app.customername}</p> <p class="active-welcome-message hidden">Welcome to DStv. Let\'s start.</p> <br> </div> <div class="chat-loading" if="{loading}"> <div class="loading-loader loading"> <div class="col-sm-12 text-center white"> <div class="spinner white"></div> <div class="loading-message">Hey!<br>Agent will join soon. Please wait</div> </div> </div> </div> <div class="chat-area scrollbar"> <div each="{chat in chats}" class="container"> <div class="alert alert-info" if="{chat.participant == \'External\' && chat.messageType == \'Message\'}"> <span> <tag-raw content="{chat.message}"></tag-raw> </span> </div> <div class="alert alert-success" if="{chat.participant == \'Agent\' && chat.messageType == \'ParticipantJoined\'}"> <span><strong>{agentName}</strong> has joined the session</span> </div> <div class="" if="{chat.participant == \'Agent\' && chat.messageType == \'Message\'}"> <div class="avatar">{agentInitials || getAgentInitials(chat.nickName)}</div> <div class="text"> <p>{chat.message}</p> <span class="time-right">{getTime(chat.timestamp)}</span> </div> </div> <div class="darker fadeIn-_dtn9" if="{chat.participant == \'Customer\' && chat.messageType == \'Message\'}"> <div class="avatar">{customerInitials}</div> <div class="text"> <p>{chat.message}</p> <span class="time-left">{getTime(chat.timestamp)}</span> </div> </div> <div class="" if="{chat.participant != \'Client\' && chat.messageType == \'ParticipantLeft\'}"> <div class="chat-left"> <p>{ agentName|| chat.nickName }<b> left</b> the session.</p> </div> </div> <div class="" if="{chat.participant == \'Client\' && chat.messageType == \'ParticipantLeft\'}"> <div class="chat-left"> <p>Thank you for your chat. We have had no further response from you. Please contact us at a convenient time when you can chat</p> </div> </div> <div class="" if="{ !hideFeedback && chat.participant == \'Client\' && chat.messageType == \'ParticipantLeft\' && !isSurveyFilled}"> <br> <div class="chat-left chat-inactive"> <p>Your feedback is important to us and will help us to improve our service to you. If you would like to provide feedback on your experience, please <a href="javascript:void(0)" onclick="{openSurveyForm}"><u>Click Here</u></a></p> </div> </div> <div style="margin-top: 10px;" if="{chat.participant == \'Client\' && chat.messageType == \'ChatUnavailable\'}"> <div class="chat-left"> <p> <tag-raw content="{chat.message}"></tag-raw> </p> </div> </div> <div if="{chat.messageType == \'IdleClose\'}"> <div class="chat-left chat-inactive"> <p>{chat.message}</p> Click <strong><a href="javascript:void(0)" onclick="{configureChat}">Here</a></strong> to re-join session. </div> </div> </div> </div> <div class="user-area"> <div class="agentTyping" if="{agentTyping}"> <div class="sp-ms10"> <span class="spinme-left"> <div class="spin"> <div class="bounce1"></div> <div class="bounce2"></div> <div class="bounce3"></div> </div> </span> </div> </div> <textarea id="txtUserMessage" placeholder="Type message.." name="msg" type="text" onkeyup="{onKeyUp}" onkeypress="{onKeyPress}" onblur="{onBlure}"></textarea> <button type="submit" class="btn paper-plane-solid" onclick="{sendMessage}" disabled="{!enableSend}"></button> </div> </div></div>','tag-livechat,[riot-tag="tag-livechat"],[data-is="tag-livechat"]{ visibility: visible; } ','',function(opts){var self=this;self.showChatBox=false;self.agentJoined=false;self.loading=true;self.isConnected=false;self.chats=[];self.isApplicableCountry=false;var chatbody='.chat-area';var txtUserMessage='#txtUserMessage';var audio=new Audio('/media/8024/noti.mp3');var liveChatCountries=[];var liveChatWithComingSoonMessage=[];self.isSurveyFilled=false;self.isInstagramApplicable=dstvApp.InstagramList.includes(dstvApp.countryabbreviation);if(site.env=='PROD'){liveChatCountries=['ke','zw','na','zm','bw','mz','mw','tz'];liveChatWithComingSoonMessage=['ke','zw','na','zm','bw','mz','mw','tz'];}
+else{liveChatCountries=['ng','ke','mz','zw','bw','na','zm','mw','tz'];liveChatWithComingSoonMessage=['zw','bw','na','zm','mw','tz'];}
+self.on('before-mount',function(){self.isApplicableCountry=liveChatCountries.includes(dstvApp.countryabbreviation)
+self.isApplicableButWithComingSoonMessage=liveChatWithComingSoonMessage.includes(dstvApp.countryabbreviation)
+if(self.isApplicableCountry){$('.feedback-unit').addClass('ng-whatsapp-icon')}})
+self.on('mount',function(){if(!self.connection)
+self.connection=new signalR.HubConnectionBuilder().withUrl("https://dsolivechat-qa.dstvafrica.com/DSOHub?ClientType=DstvAfrica").build()
+self.connection.on("ChatInitateWithAgentResponse",self._chatInitateWithAgentResponse);self.connection.on("ConnectionIdWithSmartcard",self._connectionIdWithSmartcard);});self.openChatWindow=function(){if(self.isApplicableButWithComingSoonMessage){return false;}
+self.showChatBox=true;console.log(`Live chat : connection open - ${self.connection.connection.connectionState==1}`)
+if(typeof signalR=='undefined')
+console.log('Live chat : ERROR SignalR is not loaded')
+else
+if(app.loggedin){if(self.connection&&(self.connection.connection.connectionState!=1||self.chatEnded))
+self.configureChat();else{self.checkChatHistory();self.poolMessages();}}
+self.scrollDown();}
+self.closeChatWindow=function(){self.showChatBox=false;}
+self.configureChat=function(){console.log('Live chat : Creating connection...')
+if(!(self.connection&&(self.connection.connection.connectionState!=1||self.chatEnded))){console.log('Live chat : Rejoining failed becouse connection already established...')
+return;}
+self.loading=true;self.agentJoined=false;self.createConnection();}
+self.connectionAttempt=1;self.createConnection=function(){if(self.connection.connection.connectionState!=1){self.connection.start().then(function(d){console.log('Live chat : Connection established.');self.isConnected=true;self.getConnectionID();}).catch(function(err){console.log('Live chat : ERROR Connection can not be established.');console.log(err);console.log('Live chat : Attempting to creating connection.');if(self.connectionAttempt<3){self.connectionAttempt=self.connectionAttempt+1;self.createConnection();}
+else
+console.log('Live chat : Max Attempted ');});}
+else{console.log('Live chat : Connection already established.');self.getConnectionID();}}
+self.getConnectionID=function(){console.log('Live chat : In GetconnectionId...');self.connection.invoke("GetconnectionId").then(function(){console.log('Live chat : GetconnectionId completed');self.initiateChat();}).catch(function(err){self.error=true;console.log('Live chat : ERROR In GetconnectionId ',err);});}
+self.initiateChat=function(){console.log('Live chat : Initiating chat with agent');let nm=app.customername.split(' ');let name=nm[nm.length-2];let surname=nm[nm.length-1]
+self.customerInitials=name.slice(0,1)+surname.slice(0,1);let request={country:dstvApp.country,nickname:name,firstName:name||'-',lastName:surname,subject:"",emailAddress:"",smartcardNumber:app.smartcard,language:dstvApp.languageAbbreviation,product:'test',hubConnectionId:self.hubConnectionID,chatHistory:[],clientType:'DstvAfrica'}
+let bUnit={BusinessUnit:dstvApp.businessunit,Channel:dstvApp.channel}
+self.connection.invoke("ChatInitateWithAgent",request,bUnit).then(function(data){console.log('Live chat : Initiated chat with client successfully');if(data&&data.messages.length>0){self.customerID=data.messages[0].from.participantId;self.chatEnded=data.chatEnded;self.alias=data.alias;self.secureKey=data.secureKey;self.userId=data.userId;self.chatId=data.chatId;self.nextPosition=data.nextPosition;self.enableSend=true;self.checkChatHistory();self.poolMessages();}
+else{console.log('Live chat : No messages are found. Re-initiating chat');if(!self.hubConnectionID){self.getConnectionID()}
+self.poolMessages();}
+self.update()}).catch(function(err){console.log('Live chat : ERROR Initiating chat failed');console.log(err);self.loading=false;let msg=self.getChatExceptionMessage();self.chats.push({participant:'External',message:msg,messageType:'Message',timestamp:(new Date()).getTime(),nickName:''});self.update();});}
+self._connectionIdWithSmartcard=function(id){console.log('Live chat : In ConnectionIdWithSmartcard...');if(id!==null){self.hubConnectionID=id;}}
+self._chatInitateWithAgentResponse=function(data){console.log('Live chat : In ChatInitateWithAgentResponse...',data);debugger;data=JSON.parse(data);if(data&&data.Messages.length>0){self.customerID=data.Messages[0].From.ParticipantId;self.chatEnded=data.chatEnded;self.alias=data.Alias;self.secureKey=data.SecureKey;self.userId=data.UserId;self.chatId=data.ChatId;self.nextPosition=data.nextPosition;self.enableSend=true;}
+else{console.log('Live chat : No messages are found. Re-initiating chat');if(!self.hubConnectionID){self.getConnectionID()}}};self.poolMessages=function(){console.log('Live chat : Pooling messages...');let request={message:'chat for dstv customer',alias:self.alias,secureKey:self.secureKey,userId:self.userId,chatId:self.chatId,transcriptPosition:self.nextPosition,country:dstvApp.country,messageType:'text',hubConnectionId:self.hubConnectionID,smartcardNumber:app.smartcard,clientType:'DstvAfrica'}
+self.connection.invoke("ReceiveMessage",request).then(function(data){console.log('Live chat : In ReceiveMessage response...');if(data!==null){self.nextPosition=data.nextPosition;self.chatEnded=data.chatEnded;self.loading=false;self.update();data.messages.map(function(msgOBJ){if(msgOBJ.from.type==='External'||msgOBJ.from.type==='Agent'||msgOBJ.from.type==='System'){if(msgOBJ.from.type==='Agent'&&!self.agentJoined){self.setAgentNameAndInitials(msgOBJ.from.nickname)}
+if(msgOBJ.from.type==='Agent'&&self.agentJoined&&msgOBJ.type=='TypingStarted'){self.agentTyping=true;return;}
+if(msgOBJ.from.type==='Agent'&&self.agentJoined&&msgOBJ.type=='TypingStopped'){self.agentTyping=false;return;}
+if(msgOBJ.from.type==='External'&&msgOBJ.type=='Message'){try{var emails=self.extractEmails(msgOBJ.text)
+if(emails){for(var i=0;i<emails.length;i++){var anchorTag=`<a href='mailto:${emails[0]}' target='_top' class='chat-mail-lnk'>${emails[0]}</a>`;msgOBJ.text=msgOBJ.text.replace(emails[i],anchorTag);}}
+var cellNumber=self.extractCellNumber(msgOBJ.text)
+if(cellNumber){var anchorCellTag=`<a href='tel::${cellNumber}' target='_top' class='chat-mail-lnk'>${cellNumber}</a>`;msgOBJ.text=msgOBJ.text.replace(cellNumber,anchorCellTag);}
+if(msgOBJ.text.includes('you have reached us outside our operating hours.'))
+self.hideFeedback=true;}
+catch(e){}}
+if(msgOBJ.from.type==='Agent'||msgOBJ.from.type==='External'){var externalMsgs=self.chats.filter((c)=>c.message===msgOBJ.text&&c.participant==msgOBJ.from.type&&c.cID==self.chatId&&c.messageType==msgOBJ.type);if(externalMsgs&&externalMsgs.length>0){console.log('Live chat: Duplicate msg')
+console.log(msgOBJ.text)
+return;}}
+self.agentTyping=false;self.messageAdded=true;self.chats.push({participant:msgOBJ.from.type,message:msgOBJ.text,messageType:msgOBJ.type,timestamp:(new Date()).getTime(),nickName:msgOBJ.from.nickname,cID:self.chatId});self.updateChatHistory()}})
+if(site.env=='QA'){console.log('Live chat : Received message(s) '+data.messages.length);console.log(data.messages)}
+self.update();if(data.messages.length>0){self.scrollDown();if(self.messageAdded){audio.play();self.messageAdded=false;}}}
+if(data&&!data.chatEnded)
+setTimeout(function(){self.poolMessages();},6500);else{console.log('Live chat : ended')
+self.isSurveyFilled=site.factory.CheckIfAlreadyFilledSurvey('DSTVLIVECHAT_'+app.customernumber);console.log('isSurveyFilled : '+self.isSurveyFilled);if(data.messages.length>0&&!self.messageAdded&&data.messages[data.messages.length-1].from.type=='Client'){if(self.chats.length==0){let msg=self.getChatExceptionMessage();self.chats.push({participant:'External',message:msg,messageType:'Message',timestamp:(new Date()).getTime(),nickName:data.messages[0].from.nickname});}
+else{self.chats.push({participant:data.messages[data.messages.length-1].from.type,message:null,messageType:data.messages[data.messages.length-1].type,timestamp:(new Date()).getTime(),nickName:data.messages[0].from.nickname});self.updateChatHistory()
+self.update();self.scrollDown(true)}
+self.update();}}}).catch(function(err){self.loading=false;console.log('Live chat : Pooling messages failed');console.log(err);if(data&&!data.chatEnded)
+setTimeout(function(){self.poolMessages();},6500);else{let msg=self.getChatExceptionMessage();self.chats.push({participant:'Client',message:msg,messageType:'ChatUnavailable',timestamp:(new Date()).getTime(),nickName:''});}
+self.update();});}
+self.sendMessage=function(){let txtUserMessage=$('#txtUserMessage');let msg=txtUserMessage.val();msg=msg.trim();if(self.chatEnded&&app.loggedin&&self.connection){console.log('Live chat : Sending message...');if(self.connection.connection.connectionState!=1){console.log('Live chat : Connection closed.');self.configureChat();}
+else{console.log('Live chat : Re-initiating chat');self.getConnectionID();}}
+if(!msg){txtUserMessage.focus();return;}
+if(self.customerTyping){self.customerTyping=false;self.stopTyping(true);}
+console.log('Live chat : Sending message...');let request={message:msg,alias:self.alias,secureKey:self.secureKey,userId:self.userId,chatId:self.chatId,transcriptPosition:self.nextPosition,country:dstvApp.country,hubConnectionId:self.hubConnectionID,smartcardNumber:app.smartcard,receipientId:self.customerID,clientType:'DstvAfrica'}
+self.connection.invoke("SendMessageToAgent",request).then(function(data){console.log('Live chat : In SendMessageResponse...');if(data!==null){self.nextPosition=data.nextPosition;self.update();}}).catch(function(err){console.log('Live chat: Message " '+msg+' " failed');console.log(err);});txtUserMessage.focus();txtUserMessage.val('');self.scrollDown();self.poolMessages();self.chats.push({participant:'Customer',message:msg,messageType:'Message',cID:self.chatId,timestamp:(new Date()).getTime()})
+self.updateChatHistory()
+audio.play();self.update();}
+self.hideConfirmation=function(){self.showConfirmation=false;self.update();}
+self.showConfirmationAlert=function(){self.showConfirmation=true;self.update();}
+self.endChat=function(){self.hideConfirmation();self.closeChatWindow();if(self.chatEnded){self.chats=[];self.clearHistory();return;}
+let req={alias:self.alias,secureKey:self.secureKey,userId:self.userId,chatId:self.chatId,country:dstvApp.country,smartcardNumber:app.smartcard,hubConnectionId:self.hubConnectionID,clientType:'DstvAfrica'}
+console.log(req);self.connection.invoke("DisconnectAgent",req).then(function(data){self.chats=[];self.clearHistory();}).catch(function(err){console.log('Live chat : DisconnectAgent failed');console.log(err);});}
+self.onKeyUp=function(e){if(e.which==13&&self.enableSend)self.sendMessage();}
+self.onKeyPress=function(e){console.log('Live chat : Customer typing...');if(!self.customerTyping){self.customerTyping=true;self.stopTyping(false)}}
+self.stopTyping=function(isStopTyping){var action='';if(isStopTyping){console.log('Live chat : Stop typing...');action='StopTyping';}
+else{console.log('Live chat : Start typing...');action='StartTyping';}
+var req={alias:self.alias,userId:self.userId,chatId:self.chatId,message:action,country:dstvApp.country,secureKey:self.secureKey,hubConnectionId:self.hubConnectionID,clientType:'DstvAfrica'}
+self.connection.invoke(action,req).then(function(data){}).catch(function(err){console.log(err)});}
+self.onBlur=function(){console.log('blur')}
+self.scrollDown=function(doForceful){if(self.chats.length>4||doForceful)
+setTimeout(function(){$('.chat-area').stop().animate({scrollTop:$('.chat-area')[0].scrollHeight});},500)}
+self.getTime=function(timestamp){var dt=new Date(timestamp).toLocaleTimeString().split(':');return dt[0]+':'+dt[1];}
+self.setAgentNameAndInitials=function(name){self.agentName=name.replace('.',' ');var nm=self.agentName.split(' ');var name=nm[nm.length-2];var surname=nm[nm.length-1]
+if(nm.length>1)
+self.agentInitials=name.slice(0,1)+surname.slice(0,1);else
+self.agentInitials='JJ'
+self.agentJoined=true;self.update();console.log('Live chat : Agent joined the meeting');}
+self.getAgentInitials=function(name){self.agentName=name.replace('.',' ');var nm=self.agentName.split(' ');var name=nm[nm.length-2];var surname=nm[nm.length-1]
+if(nm.length>1)
+return name.slice(0,1)+surname.slice(0,1);else
+return 'JJ'}
+self._disconnectAgent=function(data){console.log('DisconnectAgent...');if(data!==null){console.log(JSON.stringify(data));}}
+self.checkChatHistory=function(){console.log('Live chat : Checking history')
+var ch=localStorage['ch_'+app.smartcard];if(ch){console.log('Live chat : History chat found')
+try{self.loading=false;self.chats=JSON.parse(ch);self.scrollDown();}
+catch(e){console.log('Live chat : Checking history error')
+self.chats=[];}
+self.update();}
+else{console.log('Live chat : History not found')}}
+self.updateChatHistory=function(){localStorage['ch_'+app.smartcard]=JSON.stringify(self.chats);}
+self.clearHistory=function(){localStorage.removeItem('ch_'+app.smartcard);}
+self.extractEmails=function(text){return text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);}
+self.extractCellNumber=function(text){var r=text.match(/\[[^\]]*\][^[]*\[([^\]]*)\]/)
+if(r&&r.length>1)
+return r[1];return null;}
+self.getChatExceptionMessage=function(){let msg=`We are sorry we are not able to provide you with immediate assistance, our DStv chat service is unavailable. For support with your query, please email us on [${dstvApp.liveChatSupport.email}] or call us on [${dstvApp.liveChatSupport.contact}] support is available daily 24/7`
+try{let emails=self.extractEmails(msg)
+if(emails){for(var i=0;i<emails.length;i++){var anchorTag=`<a href='mailto:${emails[0]}' target='_top' class='chat-mail-lnk'>${emails[0]}</a>`;msg=msg.replace(emails[i],anchorTag);}}
+let cellNumber=self.extractCellNumber(msg)
+if(cellNumber){var anchorCellTag=`<a href='tel::${cellNumber}' target='_top' class='chat-mail-lnk'>${cellNumber}</a>`;msg=msg.replace(cellNumber,anchorCellTag);}}
+catch(e){}
+return msg;}
+self.openSurveyForm=function(){site.factory.CaptureFeedback('DSTVLIVECHAT_'+app.customernumber);}})

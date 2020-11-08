@@ -1,0 +1,170 @@
+function site(){var self=this;self.svgloaded=false;riot.observable(self);self.on('loggedin',function(data){});self.on('getdata',function(url,callback,errorcallback,data,retries){if(debugMode){console.log(url);}
+var stringData=JSON.stringify(data);var timeout=500;var pollretries=30;$.ajax({type:'GET',data:stringData,dataType:'json',url:url,success:function(sdata){if(debugMode){console.log(sdata);}
+if(_.contains(sdata.class,'wait')){if(sdata.properties&&sdata.properties.status&&sdata.properties.status.value&&(sdata.properties.status.value.toLowerCase().indexOf('fail')>-1||sdata.properties.status.value.toLowerCase().indexOf('fault')>-1)){if(errorcallback)
+errorcallback(sdata);}
+else{if(pollretries===0){console.log(sdata);if(errorcallback)
+errorcallback(error);}else{setTimeout(function(){var url=sdata.links[0].href;if(window.location.protocol!='https:'){url=url.Replace("https","http");}
+self.trigger('getdata',url,callback,errorcallback,'',pollretries-1);},3500);}}}
+else{if(callback)
+callback(sdata);}},error:function(error){if(retries===0){console.log(error);console.log("data failed retries");if(errorcallback)
+errorcallback(error);}else{setTimeout(function(){self.trigger("getdata",url,callback,errorcallback,data,retries-1);},timeout);}
+console.log(error);var trackerror={};trackerror.url=url;trackerror.data=stringData;trackerror.status=error.status;trackerror.responseText=error.responseText;if(error.responseJSON){trackerror.message=error.responseJSON.message;}
+site.trigger('track-getdata-error',trackerror);if(errorcallback)
+errorcallback(error);site.trigger('hideLoader');}});});self.on('getdataroute',function(url,data,successroute,errorroute){site.trigger('showLoader',{messageHeader:"Loading",messageBody:""});if(debugMode){console.log(url);}
+var stringData=JSON.stringify("");$.ajax({type:'GET',data:stringData,dataType:'json',url:url,success:function(data){if(debugMode){console.log(data);}
+var d=successroute.substr(successroute.lastIndexOf('/')+1);app[d]=data;if(d==app.customernumber){route("");}else{route(successroute);}
+site.trigger('hideLoader');},error:function(error){console.log(error);var d=errorroute.substr(errorroute.lastIndexOf('/')+1);app[d]=error;route(errorroute);site.trigger('hideLoader');}});});self.on('getgenericdata',function(url,successroute,errorroute){site.trigger('showLoader',{messageHeader:"Loading",messageBody:""});if(debugMode){console.log(url);}
+var stringData=JSON.stringify("");$.ajax({type:'GET',data:stringData,dataType:'json',url:url,success:function(data){if(debugMode){console.log(data);}
+var d=successroute.substr(successroute.lastIndexOf('/')+1);app[d]=data;route(successroute);site.trigger('hideLoader');},error:function(error){console.log(error);var d=errorroute.substr(errorroute.lastIndexOf('/')+1);app[d]=error;route(errorroute);site.trigger('hideLoader');}});});self.on('postdata',function(url,type,model,successcallback,errorcallback,chainEvent,status,validateonly){var data=self.factory.updateData(model);if(debugMode){console.log(url,type,data,successcallback,errorcallback,chainEvent)}
+var stringData=JSON.stringify(data);$.ajax({url:url,type:type,data:stringData,contentType:'application/json',success:function(data){if(successcallback){var pollstatus='success';if(validateonly){successcallback(data,pollstatus);return;}
+if(_.contains(data.class,'poll')){pollstatus='processing';if(data.properties&&data.properties.status&&data.properties.status.value&&(data.properties.status.value.toLowerCase().indexOf('fail')>-1||data.properties.status.value.toLowerCase().indexOf('fault')>-1)){pollstatus='error';}
+else{setTimeout(function(){var url=data.links[0].href;if(window.location.protocol!='https:'){url=url.Replace("https","http");}
+self.trigger('postdata',url,data.actions[0].method,'',successcallback,errorcallback,chainEvent,status);},3500);}}
+else if(_.contains(data.class,'in-progress')){pollstatus='processing';}
+else if(_.contains(data.class,'complete')){if(data.properties&&data.properties.status&&data.properties.status.value){if(data.properties.status.value.toLowerCase().indexOf("fail")>-1){pollstatus='error';}
+else{pollstatus=data.properties.status.value;}}
+site.trigger('hideLoader');}
+else if(_.contains(data.class,'wait')){pollstatus='success';}
+else if(_.contains(data.class,'x-form')&&(data.class[0].indexOf('clearErrorCodes')!==-1||data.class[1].indexOf('clearErrorCodes')!==-1)){var error=_.find(data.properties,function(e){return e.error!=undefined&&e.error!=''});if(error!=undefined){data.error=error;errorcallback(data);site.trigger('hideLoader');return;}else if(data.properties.status!=undefined){pollstatus='success';}}
+else{}
+successcallback(data,pollstatus);if(debugMode){console.log("succcesscallback",data);}
+site.trigger('hideLoader');return;}
+if(data.class){self.trigger("api-"+data.class[data.class.length-1],data);}
+site.trigger('hideLoader');},error:function(error){console.log(error);var trackerror={};trackerror.url=url;trackerror.data=stringData;trackerror.type=type;trackerror.status=error.status;trackerror.responseText=error.responseText;if(error.responseJSON){trackerror.message=error.responseJSON.message;}
+site.trigger('track-postdata-error',trackerror);if(errorcallback){errorcallback(error);}
+site.trigger('hideLoader');}});});self.on('postuserdata',function(url,type,model,successcallback,errorcallback,chainEvent,status,validateonly){var stringData=JSON.stringify(model);$.ajax({url:url,type:type,data:stringData,contentType:'application/json',success:function(data){if(successcallback){var pollstatus='success';if(validateonly){successcallback(data,pollstatus);return;}
+if(_.contains(data.class,'poll')){pollstatus='processing';if(data.properties&&data.properties.status&&data.properties.status.value&&(data.properties.status.value.toLowerCase().indexOf('fail')>-1||data.properties.status.value.toLowerCase().indexOf('fault')>-1)){pollstatus='error';}
+else{setTimeout(function(){var url=data.links[0].href;if(window.location.protocol!='https:'){url=url.Replace("https","http");}
+self.trigger('postdata',url,data.actions[0].method,'',successcallback,errorcallback,chainEvent,status);},3500);}}
+else if(_.contains(data.class,'in-progress')){pollstatus='processing';}
+else if(_.contains(data.class,'complete')){if(data.properties&&data.properties.status&&data.properties.status.value){if(data.properties.status.value.toLowerCase().indexOf("fail")>-1){pollstatus='error';}
+else{pollstatus=data.properties.status.value;}}
+site.trigger('hideLoader');}
+else if(_.contains(data.class,'wait')){pollstatus='success';}
+else if(_.contains(data.class,'x-form')&&(data.class[0].indexOf('clearErrorCodes')!==-1||data.class[1].indexOf('clearErrorCodes')!==-1)){var error=_.find(data.properties,function(e){return e.error!=undefined&&e.error!=''});if(error!=undefined){data.error=error;errorcallback(data);site.trigger('hideLoader');return;}else if(data.properties.status!=undefined){pollstatus='success';}}
+else{}
+successcallback(data,pollstatus);if(debugMode){console.log("succcesscallback",data);}
+site.trigger('hideLoader');return;}
+if(data.class){self.trigger("api-"+data.class[data.class.length-1],data);}
+site.trigger('hideLoader');},error:function(error){console.log(error);var trackerror={};trackerror.url=url;trackerror.data=stringData;trackerror.type=type;trackerror.status=error.status;trackerror.responseText=error.responseText;if(error.responseJSON){trackerror.message=error.responseJSON.message;}
+site.trigger('track-postdata-error',trackerror);if(errorcallback){errorcallback(error);}
+site.trigger('hideLoader');}});});self.on('onceOffPayment',function(url,type,data,callback,errorcallback){$.ajax({type:"POST",dataType:"json",url:url,data:data,success:(function(data){if(callback){callback(data);}}),error:(function(data){if(errorcallback){errorcallback(data);}})});});self.on('postArcherData',function(url,type,data,callback,errorcallback){$.ajax({type:type,dataType:"json",url:url,data:data,success:(function(data){if(callback){callback(data);}}),error:(function(data){if(errorcallback){errorcallback(data);}})});});self.on('sendFeedback',function(url,type,data,callback,errorcallback){$.ajax({type:"POST",dataType:"json",url:url,data:data,success:(function(data){if(callback){console.log('sendFeedback SUCCESS');console.log(data);callback(data);}}),error:(function(data){if(errorcallback){console.log('sendFeedback FAILURE');console.log(data);errorcallback(data);}})});});self.on('getpostdata',function(url,reqType,contentType,token,sessionId,reqBody,methodName,callback,errorcallback){$.ajax({type:reqType,contentType:contentType,dataType:"json",url:url,sessionId:sessionId,headers:{"Authorization":token},data:JSON.stringify(reqBody),success:(function(data){if(callback){if(methodName=='GetJWTToken'&&data)
+{dstvApp.QAThanksToken=data.Token;var res=site.factory.SetStorage(dstvApp.jwtTokenKey,dstvApp.QAThanksToken,dstvApp.timeToExpire);if(res){console.log('localstorage set for key: '+dstvApp.jwtTokenKey);}
+else
+{console.log('Failed to set local storage for JWTToken');}}
+if(methodName=='AuthenticateUser'&&data)
+{dstvApp.UserSessionKey=data.sessionKey;dstvApp.AuthenticateUserResponse=data;}
+if(methodName=='ClaimReward'&&data)
+{dstvApp.ClaimDetails=data;}
+if(methodName=='SmsVoucher'&&data)
+{dstvApp.SmsVoucherResponse=data;}
+callback(data);}}),error:(function(data){console.log(data);if(errorcallback){dstvApp.ApiErrorResponse=data;errorcallback(data);}})});function tokenSuccessCallback(){console.log('in success callback function');}});self.successfullStatusUpdate=function(data){}
+self.unsuccessfullStatusUpdate=function(data){toastr.error("Failed to update status to new");}}
+var site=new site();site.factory={CurrencyFormatted:function(amount){var i=parseFloat(amount);if(isNaN(i)){i=0.00;}
+var minus='';if(i<0){minus='-';}
+i=Math.abs(i);i=parseInt((i+.005)*100);i=i/100;s=new String(i);if(s.indexOf('.')<0){s+='.00';}
+if(s.indexOf('.')==(s.length-2)){s+='0';}
+s=minus+s;return "R"+s.toString().replace(/\B(?=(\d{3})+(?!\d))/g," ");},CurrencyFormattedWhole:function(amount){var i=parseFloat(amount);if(isNaN(i)){i=0.00;}
+var minus='';if(i<0){minus='-';}
+i=Math.abs(i);i=parseInt((i+.005)*100);i=i/100;s=new String(i);if(s.indexOf('.')<0){s+='';}
+if(s.indexOf('.')==(s.length-2)){s+='0';}
+s=minus+s;return "R"+s.toString().replace(/\B(?=(\d{3})+(?!\d))/g," ");},DisplayUrl:function(i,url){var urlquery=i.href.Replace(url,"");return '#'+urlquery.split('?')[0];},AugmentData:function(data,PropertyConfig){if(data&&data.class){if(PropertyConfig){var mod=PropertyConfig;if(mod){try{this.AugmentObject(data,mod);}
+catch(e){console.log("Outer Error : %s",e);}}}}},AugmentObject:function(obj,mod){if(obj&&obj.class&&mod){var md=mod[Object.keys(mod)[0]];if(md){if(md.groups){if(obj.groups===undefined)
+obj.groups=md.groups;}
+if(obj.properties&&md.properties){this.UpdateProperties(obj,mod);}
+if(obj.links&&md.links){this.UpdateLinks(obj,mod);}
+if(obj.actions&&md.actions){this.UpdateActions(obj,mod);}}}
+if(obj&&obj.entities){obj.entities.forEach(function(o,i){this.AugmentObject(o,mod);});}},UpdateProperties:function(obj,mod){var self=this;try{var properties=self.Object2Array(obj.properties);var newproperties=[];if(mod[Object.keys(mod)]){mod[Object.keys(mod)].properties.forEach(function(modprop){var prop=_.findWhere(properties,{$key:Object.keys(modprop)[0]});if(prop){Object.keys(modprop[Object.keys(modprop)[0]]).forEach(function(mpk){prop[mpk]=modprop[Object.keys(modprop)[0]][mpk];});newproperties.push(prop);}});}else{mod[Object.keys(mod)].properties.forEach(function(modprop){var prop=_.findWhere(properties,{$key:Object.keys(modprop)[0]});if(prop){Object.keys(modprop[Object.keys(modprop)[0]]).forEach(function(mpk){prop[mpk]=modprop[Object.keys(modprop)[0]][mpk];});newproperties.push(prop);}});}
+obj.properties=self.Array2Object(newproperties);}catch(e){console.log("UpdateProperties",e);}},UpdateLinks:function(obj,mod){var self=this;console.log("Links pre : %s",obj.links);},UpdateActions:function(obj,mod){var self=this;console.log("Actions pre : %s",obj.actions);},updateAction:function(model,action){var o={};model=model===undefined?null:model.length===undefined?model:model[model.length-1];if(model){for(var item in model.properties){var val=model.properties[item].value===undefined?"":model.properties[item].value;o[item]=val;action.url=action.url.replace('{'+item+'}',val);}}
+if(action.method=='POST'){action.data=o;}
+return action;},findKey:function(obj,mod){var key;if(Object.keys(mod).length>1){var objKey=this.createKey(obj);$.each(Object.keys(mod),function(index,currentKey){if(objKey===currentKey){key=currentKey;}});if(key){obj=mod[key];}}
+return obj;},createKey:function(obj){var result;$.each(obj.class,function(index,value){if(result){result+="-"+value;}else{result=value;}});return result;},Array2Object:function(ar){var obj={};ar.map(function(el){obj[el['$key']]=el;});return obj;},Object2Array:function(obj){return Object.keys(obj).map(function(key){Object.defineProperty(obj[key],'$key',{enumerable:true,value:key})
+return obj[key];});},updateData:function(model){var o={};model=model===undefined?null:model.length===undefined?model:model[model.length-1];if(model){for(var item in model.properties){var val=model.properties[item].value===undefined?"":model.properties[item].value;o[item]=val;}}
+return o;},setPropertyModel:function(model,formData){for(prop in model.properties){if(formData[prop]){if(formData[prop].type=="checkbox"){if(formData[prop].checked==true){model.properties[prop].value="true";}
+else{model.properties[prop].value="false";}
+continue;}
+if(formData[prop].type=="select-one"&&formData[prop].selectedIndex==0){model.properties[prop].value="";continue;}
+model.properties[prop].value=formData[prop].value;}}},updateProperties:function(properties,formData){for(prop in properties){if(formData[prop]){if(formData[prop].type=="checkbox"){if(formData[prop].checked==true){properties[prop].value="true";}
+else{properties[prop].value="false";}
+continue;}
+if(formData[prop].type=="select-one"&&formData[prop].selectedIndex==0){properties[prop].value="";continue;}
+properties[prop].value=formData[prop].value;}}},translate:function(key){if(app.dictionary&&_.findWhere(app.dictionary,{Key:key})){return _.findWhere(app.dictionary,{Key:key}).Value;}
+return key;},geterrorcode:function(obj,key){if(app.dictionary&&_.findWhere(app.dictionary,{Title:key})){return _.findWhere(obj,{Title:key});}
+return{};},GetAccountType:function(obj,key){for(i=0;i<obj.length;i++){if(obj[i].properties!=undefined&&obj[i].properties.number!=undefined&&obj[i].properties.number.value===key){return key+" - "+obj[i].properties.type.value;}}
+return key;},getParameterByName:function(name,url){if(!url)url=window.location.href;name=name.replace(/[\[\]]/g,"\\$&");var regex=new RegExp("[?&]"+name+"(=([^&#]*)|&|#|$)"),results=regex.exec(url);if(!results)return null;if(!results[2])return '';return decodeURIComponent(results[2].replace(/\+/g," "));},getMoviesCount:function(amount){amount=parseInt(amount);if(amount<=0){return parseInt(Math.abs(amount)/35);}
+return 0;},intParse:function(amount){return parseInt(amount);},dateToday:function(){var d=new Date();var month=d.getMonth()+1;var day=d.getDate();var output=d.getFullYear()+
+'-'+
+((''+month).length<2?'0':'')+
+month+
+'-'+
+((''+day).length<2?'0':'')+
+day;return output;},parseDate:function(str){var mdy=str.split('-');var newDate=new Date(mdy[0],mdy[1]-1,mdy[2]);return newDate;},daydiff:function(first,second){return Math.round((second-first)/(1000*60*60*24));},getDateDiff:function(dateParam){var diff=this.daydiff(this.parseDate(this.dateToday()),this.parseDate(dateParam));return diff>=0?diff:0;},getDateDiffValue:function(dateParam){var diff=this.daydiff(this.parseDate(this.dateToday()),this.parseDate(dateParam));return diff;},formatDate:function(dateParam){return dateParam.getDate()+'/'+(dateParam.getMonth()+1)+'/'+dateParam.getFullYear();},pieClassesGeneral:function(numDays,dueAmount){dueAmount=parseInt(dueAmount);if(dueAmount<=0){return "p0";}
+else if(numDays>=0){var calc=(numDays/30)*100;calc=Math.round(calc);return "p"+(calc>=100?"100":calc);}else{return "p100 red";}},pieClassesBoxoffice:function(numMovies,dueAmount){dueAmount=parseInt(dueAmount);if(dueAmount===0){return "p0";}
+if(dueAmount>0){return "p100 red";}
+if(numMovies>=1){var calc=parseInt(numMovies*35);return "green p"+(calc>=100?"100":calc);}else{return "green p3";}},getBoxOfficeAmount:function(amount){var amountValue=parseInt(amount);if(amountValue<=0){return Math.abs(amountValue)+",00";}
+return "-"+amount;},formatUrl:function(url){if(window.location.protocol==="http:"){return url.replace('https','http');}
+return url;},getPaymentAmountDescription:function(amount){amount=parseInt(amount);if(amount===0){return "PAID";}else if(amount<0){return "AVAILABLE";}
+return "PAY NOW";},checkswitched:function(decoder){if(decoder.serialNumber!=undefined&&app[decoder.serialNumber]!=undefined&&app[decoder.serialNumber].actions!=undefined){window.consolelog(app[decoder.serialNumber]);if(_.findIndex(app[decoder.serialNumber].actions,{title:'SwitchBack HolidayHome Decoder'})>-1||_.findIndex(app[decoder.serialNumber].actions,{title:'Suspend Packages'})>-1){return true;}
+else{return false;}}},setTransactionHistoryAccountNumber:function(e){switch(e.currentTarget.name){case "residentialgeneral":app.transactionaccountnumber=app.duepaymentaccounts.residentialgeneral.accountNumber.value;break;case "holidayhomes":app.transactionaccountnumber=app.duepaymentaccounts.holidayhomes.accountNumber.value;break;case "boxoffice":app.transactionaccountnumber=app.duepaymentaccounts.boxoffice.accountNumber.value;break;case "paymentplan":app.transactionaccountnumber=app.duepaymentaccounts.paymentplan.accountNumber.value;break;default:return;}},getMonthName:function(dateParameter){if(dateParameter){var newDate=new Date(dateParameter);return newDate.toLocaleString("en-us",{month:"long"});}
+return null;},getFullYear:function(dateParameter){if(dateParameter){var newDate=new Date(dateParameter);return newDate.getFullYear();}
+return null;},formatTransactionDate:function(d){if(d){return d.replace(d.substring(d.lastIndexOf(":"),d.lastIndexOf(":")+3),"");}
+return null;},AzureLogentry:function(setUserLog,action,subaction,eventname,logmessage){var userlog=setUserLog;userlog.action=action;userlog.subaction=subaction;userlog.eventname=eventname;userlog.logmessage=logmessage;window.DocLog(userlog);},getReturnPath:function(name,url){if(!url)url=window.location.href;name=name.replace(/[\[\]]/g,"\\$&");var returnUrl='';var queryStringValues=(window.location.href.split('?')[1])
+if(queryStringValues){if(queryStringValues.split('=')[0]===name){returnUrl=queryStringValues.split('=')[1];}}
+return returnUrl;},getCulture:function(){var indexPosition=location.href.indexOf('-');if(indexPosition>0){let cultureString=location.href.substring(indexPosition-2,indexPosition+3);let lang=cultureString.substr(0,2).toLowerCase();let country=cultureString.substr(3).toLowerCase();let language=['en','pt'];if(language.includes(lang)&&site.countryAbbrList.includes(country))
+return cultureString;return '';}
+else
+return '';},GetEazyDateFormat:function(dateString){let month=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];let d=new Date(dateString);let dd=d.getDate();let mm=d.getMonth("");let yyyy=d.getFullYear();if(dd<10){dd='0'+dd;}
+if(yyyy==1)
+return '';return dd+' '+month[mm]+' '+yyyy;},CaptureUserTokenAndType:function(customerNumber,surname,country,token,isBoxOfficeCustomer,boxOfficeAccount){let key=country.toLowerCase()+surname.toLowerCase()+customerNumber;let ecr=btoa(key);localStorage[ecr]=JSON.stringify({token:token,isBoxOfficeCustomer:isBoxOfficeCustomer,boxOfficeAccount:boxOfficeAccount});},GetUserTokenAndType:function(customerNumber,surname,country){let key=country.toLowerCase()+surname.toLowerCase()+customerNumber;let ecr=btoa(key);try{return JSON.parse(localStorage[ecr]);}catch(e){return null;}},ShowModelPopup:function(popupType,popMainHeading,popSubHeading,decription,showRetryButton,showCloseButton,callback){let params={showmodel:true,state:popupType,mainheading:popMainHeading,subheading:popSubHeading,description:decription,showretrybutton:showRetryButton,showclosebutton:showCloseButton,callback:callback};riot.mount('tag-modal-popup',params);},ShowModelPopupWithCustomButtonText:function(popupType,popMainHeading,popSubHeading,decription,showRetryButton,retryButtonText,showCloseButton,closeButtonText,callback){let params={showmodel:true,state:popupType,mainheading:popMainHeading,subheading:popSubHeading,description:decription,showretrybutton:showRetryButton,retrybuttontext:retryButtonText,showclosebutton:showCloseButton,closebuttontext:closeButtonText,callback:callback};riot.mount('tag-modal-popup',params);},GetJWTToken:function(url,reqBody,reqType,methodName,successCallback,errorCallBack){var url=url;var requestType=reqType;var requestBody=reqBody;var contentType='application/json';var methodName=methodName;site.trigger('getpostdata',url,requestType,contentType,'','',requestBody,methodName,successCallback,errorCallBack);},RemoveStorage:function(name){try{localStorage.removeItem(name);localStorage.removeItem(name+'_expiresIn');}catch(e){console.log('removeStorage: Error removing key ['+key+'] from localStorage: '+JSON.stringify(e));return false;}
+return true;},GetStorage:function(key){var now=Date.now();var expiresIn=localStorage.getItem(key+'_expiresIn');if(expiresIn===undefined||expiresIn===null){expiresIn=0;}
+if(expiresIn<now){site.factory.RemoveStorage(key);return null;}else{try{var value=localStorage.getItem(key);return value;}catch(e){console.log('getStorage: Error reading key ['+key+'] from localStorage: '+JSON.stringify(e));return null;}}},SetStorage:function(key,value,expires){if(expires===undefined||expires===null){expires=(5400000);}else{expires=Math.abs(expires);}
+var now=Date.now();var schedule=now+expires*60000;try{localStorage.setItem(key,value);localStorage.setItem(key+'_expiresIn',schedule);}catch(e){console.log('setStorage: Error setting key ['+key+'] in localStorage: '+JSON.stringify(e));return false;}
+return true;},GetEnvironment:function(){var env='';if(window.location.href.includes('www.dstvafrica.com')||window.location.href.includes('preprod.dstvafrica.com')){env='PROD';}
+else
+{env='QA';}
+return env;},Put:function(url,data,token,successCallback,errorCallback){let options={type:"PUT",dataType:"json",url:url,data:JSON.stringify(data),contentType:'application/json',success:(function(data){if(successCallback){successCallback(data);}}),error:(function(data){if(errorCallback){errorCallback(data);}})};if(token)
+options.headers={Authorization:'Bearer '+token}
+$.ajax(options);},Post:function(url,data,token,successCallback,errorCallback){let options={type:"POST",dataType:"json",url:url,data:JSON.stringify(data),contentType:'application/json',success:(function(data){if(successCallback){successCallback(data);}}),error:(function(data){if(errorCallback){errorCallback(data);}})};if(token)
+options.headers={Authorization:'Bearer '+token}
+$.ajax(options);},Get:function(url,token,successCallback,errorCallback){let options={type:"GET",dataType:"json",url:url,contentType:'application/json',success:(function(data){if(successCallback){successCallback(data);}}),error:(function(data){if(errorCallback){errorCallback(data);}})};if(token)
+options.headers={Authorization:'Bearer '+token}
+$.ajax(options);},doAction:function(){return $.ajax({type:"POST",dataType:"json",url:dstvApp.DSOAuthUrl,contentType:'application/json',data:JSON.stringify({PlatformName:"dstvafrica",GUID:dstvApp.DSOAuthGUID})});},GetJWT:async function(){console.log('JWT : Checking token...')
+let key=dstvApp.jwtTokenKey;let now=Date.now();let expiresIn=localStorage.getItem(key+'_expiresIn')||0;expiresIn=parseInt(expiresIn)
+if(expiresIn<now){console.log('JWT : Token expired')
+console.log('JWT : Token creation started')
+let tokenData=await site.factory.doAction();if(tokenData.Token)
+site.factory.SetStorage(key,tokenData.Token,dstvApp.timeToExpire);return tokenData.Token;}
+else{console.log('JWT : Token found')
+return localStorage.getItem(key);}},CaptureFeedback:function(action){if(dstvApp.languageAbbreviation!='pt'){console.log('Survey : Capturing feedback...')
+if(!$.cookie(action)){let formName=action.split('_')[0];dstvApp.currentFeedback=action;let timeoutInterval=6000;if(formName.includes('LIVECHAT')||formName.includes('SHOWMAX'))
+timeoutInterval=0;setTimeout(function(){var d={smartcard:app.smartcard,customernumber:app.customernumber,businessunit:dstvApp.businessunit,channel:dstvApp.channel,country:dstvApp.country,surveytype:formName};window.usabilla_live('data',{'custom':d});window.usabilla_live("setForm",formName);window.usabilla_live("click");},timeoutInterval)}
+else{console.log('Survey : Feedback already captured...')}}},CheckIfAlreadyFilledSurvey:function(action){if(!$.cookie(action)){return false;}
+else{return true;}},CacheCaptureFeedback:function(category,action,label,value,userData){console.log('Survey : Callback captured feedback action :'+action)
+if(action=='Feedback:Success'&&dstvApp.currentFeedback){$.cookie(dstvApp.currentFeedback,'true',{expires:(site.env=='QA'?1:30)});console.log('Survey : completed');if(userData.custom.surveytype=='DSTVSHOWMAX'){setTimeout(function(){location.reload()},2000);}}},RememberMe:function(){console.log('Remember Me : Setting values...')
+let me=`${app.customercontactdetails.Surname}|${app.smartcard}|${dstvApp.countryabbreviation}-${dstvApp.languageAbbreviation}`;me=CryptoJS.AES.encrypt(me,"10101001100100010010011").toString();$.cookie('me',me,{path:'/',expires:365});console.log('Remember Me : Setting values completed')},GetCacheValuesForMe:function(){console.log('Remember Me : Checking values...')
+let me=$.cookie('me');if(me){me=CryptoJS.AES.decrypt(me,"10101001100100010010011").toString(CryptoJS.enc.Utf8);me=me.split('|');console.log('Remember Me : values found')
+return{sn:me[0],sm:me[1],cn:me[2]}}
+console.log('Remember Me : not found')
+return false;},ClearCacheValuesForMe:function(){console.log('Remember Me : clearing values...')
+var me=$.cookie('me','',{path:'/'});},GetFindSmartcardAttempt:function(){let k=`${dstvApp.countryabbreviation}_fnSM`
+let c=$.cookie(k);if(c){return $.cookie(`${dstvApp.countryabbreviation}_fnSM_attempt`);}
+else
+return 1;},CaptureFindSmartcardAttempt:function(attempt){console.log('CaptureFindSmartcardAttempt :'+(attempt+1))
+let k=`${dstvApp.countryabbreviation}_fnSM`;let v=`${dstvApp.countryabbreviation}_fnSM_attempt`;let c=$.cookie(k);let dt=new Date();dt.setTime(dt.getTime()+(30*60*1000));attempt=attempt+1;if(!c){console.log('CaptureFindSmartcardAttempt : Cookie not found')
+$.cookie(k,'true',{expires:dt});$.cookie(v,attempt,{expires:dt});console.log('CaptureFindSmartcardAttempt : Cookie created')}
+else{console.log('CaptureFindSmartcardAttempt : Attempt capture + 1 ')
+$.cookie(v,attempt,{expires:dt});if(attempt==3)
+$.cookie(k,'true',{expires:dt});}
+console.log('CaptureFindSmartcardAttempt : Done')},SetCurrency:function(status,countryAbbreviation){var arrayDualCurrencyContries=[];var arrayDualCurrencies=[];for(var i=0;i<dstvApp.DualCurrenciesList.length;i++){var split=dstvApp.DualCurrenciesList[i].split("-");arrayDualCurrencyContries.push(split[0]);arrayDualCurrencies.push(split[1]);}
+if(arrayDualCurrencyContries.includes(countryAbbreviation)){switch(countryAbbreviation){case 'et':if(status==true){dstvApp.countrycurrency='usd'}
+else{dstvApp.countrycurrency='etb'}
+break;case 'mu':if(status==true){dstvApp.countrycurrency='mur'}
+else{dstvApp.countrycurrency='mur'}
+break;}}},IsSignURL:function(url){return url.includes("account")||url.includes("dashboard")||url=="pay"||url.includes("sign-in");},ShowSignIn:function(param){if(app.loggedin)
+window.location=dstvApp.DashboardURL;else{param?riot.mount('tag-sign-in',param):riot.mount('tag-sign-in');}},HandleHowToPay:function(){if(dstvApp.SelfServiceEnabledCountries.includes(dstvApp.countryabbreviation))
+window.open(`https://eazy.dstv.com/${dstvApp.languageAbbreviation}/${dstvApp.countryabbreviation}${ langTranslateApp.subMenuHowToPayLinkGeneric}`)
+else if(dstvApp.language.toLowerCase()=='portuguese')
+window.location=window.culture+'/formas-de-pagamento';else
+window.location=window.culture+'/ways-to-pay';}};site.countryAbbrList=["ao","bj","bw","bf","bi","cm","cv","td","cg","dj","cd","gq","er","et","ga","gm","gh","gn","gw","ci","ke","lr","mg","mw","mr","mu","mz","mz","na","ng","ne","rw","st","sn","sc","sl","sd","sz","tz","tg","ug","zm","zw"];site.env='PROD';window.name="selfservice";window.culture=site.factory.getCulture()?'/'+site.factory.getCulture():"/en-ng";var sessionStorage_transfer=function(event){if(!event){event=window.event;}
+if(!event.newValue)return;if(event.key=='getSessionStorage'){localStorage.setItem('sessionStorage',JSON.stringify(sessionStorage));localStorage.removeItem('sessionStorage');}else if(event.key=='sessionStorage'&&!sessionStorage.length){var data=JSON.parse(event.newValue);for(var key in data){sessionStorage.setItem(key,data[key]);}}};if(window.addEventListener){window.addEventListener("storage",sessionStorage_transfer,false);}else{window.attachEvent("onstorage",sessionStorage_transfer);};if(!sessionStorage['prevCulture']||sessionStorage['prevCulture']!=window.culture){sessionStorage['prevCulture']=window.culture;window.reloadData=true;}
+else{window.reloadData=false;}
